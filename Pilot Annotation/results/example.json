@@ -1,0 +1,39 @@
+{
+  "lecture_id": "example",
+  "annotations": {
+    "example_s011_u01": {
+      "label": "on_slide_content"
+    },
+    "example_s011_u02": {
+      "label": "on_slide_content"
+    },
+    "example_s011_u03": {
+      "label": "implicit_lecture_content",
+      "sublabel": "concept_clarification",
+      "not_on_slide_span": "more than just simply being too fat"
+    },
+    "example_s011_u04": {
+      "label": "figure_formula_explanation"
+    },
+    "example_s011_u05": {
+      "label": "on_slide_content"
+    },
+    "example_s011_u06": {
+      "label": "metadiscourse",
+      "sublabel": "audience_interaction"
+    },
+    "example_s011_u07": {
+      "label": "implicit_lecture_content",
+      "sublabel": "contextual_knowledge",
+      "not_on_slide_span": "allied health fields, you'll might even discuss up to five different types of diabetes"
+    },
+    "example_s011_u08": {
+      "label": "metadiscourse",
+      "sublabel": "organization_management"
+    },
+    "example_s011_u09": {
+      "label": "metadiscourse",
+      "sublabel": "speaker_stance"
+    }
+  }
+}

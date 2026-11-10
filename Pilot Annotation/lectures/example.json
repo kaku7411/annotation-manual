@@ -1,0 +1,95 @@
+{
+  "lecture_id": "example",
+  "source_dataset": "lpm",
+  "video_url": "https://www.youtube.com/watch?v=uNrB2uG_9gs",
+  "slides": [
+    {
+      "slide_index": 11,
+      "image_path": "slide_images/example/slide_0011.jpg",
+      "narration": "when it comes to diabetes most of us know there are two types type 1 type 2 the way i always remember type 2 is that you're too fat and it's more than just simply being too fat but that's what we tend to talk about and as you can see in the chart there's a lot more type 2 diabetes than there is type 1 now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy but for most of us we tend to you've only type 1 and type 2 those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes but for us for this class type 1 type 2 and remember type 2 is because you're too fat as i always like to do give you a little hints to help you remember things",
+      "narration_units": [
+        {
+          "unit_id": "example_s011_u01",
+          "text": "When it comes to diabetes, most of us know there are two types: type 1, type 2.",
+          "evidence": [
+            {
+              "quote": "when it comes to diabetes most of us know there are two types type 1 type 2"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u02",
+          "text": "The way I always remember type 2 is that you're too fat.",
+          "evidence": [
+            {
+              "quote": "the way i always remember type 2 is that you're too fat"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u03",
+          "text": "And it's more than just simply being too fat, but that's what we tend to talk about.",
+          "evidence": [
+            {
+              "quote": "and it's more than just simply being too fat but that's what we tend to talk about"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u04",
+          "text": "As you can see in the chart, there's a lot more type 2 diabetes than there is type 1.",
+          "evidence": [
+            {
+              "quote": "as you can see in the chart there's a lot more type 2 diabetes than there is type 1"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u05",
+          "text": "Now, there is a third type of diabetes, which is basically women who are pregnant who get elevated glucose levels during pregnancy.",
+          "evidence": [
+            {
+              "quote": "now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u06",
+          "text": "But for most of us, we tend to you've only type 1 and type 2.",
+          "evidence": [
+            {
+              "quote": "but for most of us we tend to you've only type 1 and type 2"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u07",
+          "text": "Those of you who are going into the allied health fields, you'll might even discuss up to five different types of diabetes.",
+          "evidence": [
+            {
+              "quote": "those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u08",
+          "text": "But for us, for this class, type 1, type 2, and remember type 2 is because you're too fat.",
+          "evidence": [
+            {
+              "quote": "but for us for this class type 1 type 2 and remember type 2 is because you're too fat"
+            }
+          ]
+        },
+        {
+          "unit_id": "example_s011_u09",
+          "text": "As I always like to do, give you a little hints to help you remember things.",
+          "evidence": [
+            {
+              "quote": "as i always like to do give you a little hints to help you remember things"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
