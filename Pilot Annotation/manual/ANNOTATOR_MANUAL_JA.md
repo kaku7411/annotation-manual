@@ -17,6 +17,8 @@
   - [3.3 判断の前提に問題がある場合](#sec-3-3)
   - [3.4 文字起こしの誤り](#sec-3-4)
 - [4. 作業例](#sec-4)
+  - [4.1 糖尿病のスライド](#sec-4-1)
+  - [4.2 図の説明と補足が混在する NU](#sec-4-2)
 
 <a id="sec-1"></a>
 
@@ -38,21 +40,21 @@
 
 1. 現在のスライド画像
 2. そのスライドに対応付けられたナレーション（発話テキスト）の全文
-3. そのナレーションから抽出された NU の一覧
+3. そのナレーションから抽出された NU（Narration Unit）の一覧
 
-また、講義ごとに元の講義動画の URL（`video_url`）が記載されている。動画の確認は必須ではないが、必要に応じて参照してよい（[3.4](#sec-3-4)）。
+また、講義ごとに元の講義動画の URL（`video_url`）が記載されている。必要に応じて参照してよい（[3.4](#sec-3-4)）。
 
 **例：`example`（元講義の `slide_index: 11`）**
 
-![糖尿病の種類を示す例示スライド](example_images/example/slide_0011.jpg)
+<img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示す例示スライド" width="50%">
 
-図 2.1：スライド画像の例
+スライド画像の例
 
 **対応するナレーション原文（冒頭と末尾。中間は「…」で省略）：**
 
 > when it comes to diabetes most of us know there are two types type 1 type 2 … as i always like to do give you a little hints to help you remember things
 
-**このナレーションから抽出された NU：**
+**このナレーションから抽出された NU（Narration Unit）：**
 
 1. `example_s011_u01` — When it comes to diabetes, most of us know there are two types: type 1, type 2.
 2. `example_s011_u02` — The way I always remember type 2 is that you're too fat.
@@ -77,12 +79,12 @@
 
 | 主ラベル | 概要 |
 |---|---|
-| `on_slide_textual_content` | スライドの文字要素（タイトル、箇条書き、文章）に示された内容を説明する。 |
-| `on_slide_visual_content` | スライドの視覚的要素（図、表、数式、グラフ、画像など）に示された内容を説明する。 |
+| `on_slide_textual_content` | スライドに示された内容のうち、文字を読めば理解できる内容（タイトル、箇条書き、文章、数式、標準的な表など）を説明する。 |
+| `on_slide_visual_content` | スライドに示された内容のうち、理解に図や画像の視覚的な理解が必要な内容（図、グラフ、画像など）を説明する。 |
 | `implicit_lecture_content` | スライドに直接示されていない、話題の理解に役立つ情報を補足する。 |
 | `metadiscourse` | 講義の進行、発言内容に対する講師の態度・評価、聞き手とのやり取りに関する発話。 |
 | `unrelated_content` | 意味は分かるが、上記のいずれにも当てはまらない（例：「今日は天気がいいですね」）。 |
-| `invalid_nu` | 発話の途切れや、明らかな言い間違い・文字起こしの誤りなどにより、文脈を確認しても内容を理解できない NU。 |
+| `invalid_nu` | 文脈を確認しても内容を理解できない NU。 |
 
 主ラベルは、その発話が聞き手に知識を伝えるものかどうかによって、次のように整理できる。
 
@@ -94,7 +96,7 @@
 | 知識を伝えない発話 | 上記のいずれにも当たらない | `unrelated_content` |
 | （内容を理解できない） | — | `invalid_nu` |
 
-※ 最終的なアノテーション結果には `invalid_nu` を含めないこと。`invalid_nu` を付けた NU は、内容を確認して修正したうえで、改めてアノテーションを行う。
+※ 最終的なアノテーション結果には、できるだけ `invalid_nu` が残らないようにする。`invalid_nu` を付ける前に、[3.2.5](#sec-3-2-5) の手順で文脈を確認し、文字起こしの誤りは [3.4](#sec-3-4) に従って修正したうえでラベルを付ける。
 
 作業の手順は次のとおりである。
 
@@ -106,7 +108,7 @@
 
 本マニュアルでは、`label` に記入する分類を「主ラベル」、`sublabel` に記入する分類を「サブラベル」、各サブラベルの説明に挙げた下位項目を「細分類」と呼ぶ。細分類は記入しない。
 
-入力項目の一覧は 3.1、各ラベルの説明は 3.2 に示す。
+入力項目の一覧は [3.1](#sec-3-1)、各ラベルの説明は [3.2](#sec-3-2) に示す。
 
 <a id="sec-3"></a>
 
@@ -128,7 +130,7 @@
 
 **ILC とそれ以外の内容が1つの NU に混在する場合**
 
-1つの NU に、スライドに示された内容の説明と、スライドに書かれていない補足が混在している場合は、補足を優先して主ラベルを `implicit_lecture_content` とする。そのうえで、補足部分を `not_on_slide_span` に抜き出し、補足部分を除いた残りの部分の主ラベル（`on_slide_textual_content` または `on_slide_visual_content`）を `remainder_label` に記入する。NU 全体が補足である場合、`remainder_label` は空欄（`""`）とする。
+1つの NU に、スライドに書かれていない補足（ILC）と、それ以外の内容が混在している場合は、補足を優先して主ラベルを `implicit_lecture_content` とする。そのうえで、補足部分を `not_on_slide_span` に抜き出し、補足部分を除いた残りの部分の主ラベル（`on_slide_textual_content`、`on_slide_visual_content`、`metadiscourse`、`unrelated_content` のいずれか）を `remainder_label` に記入する（例：[4.1 の u03](#ex-4-1-u03)、[4.2 の u02](#ex-4-2-u02)）。NU 全体が補足である場合、`remainder_label` は空欄（`""`）とする（例：[4.1 の u07](#ex-4-1-u07)）。
 
 補足とみなすかどうかは、**その部分を削除すると、聞き手が受け取る内容が失われるか**で判断する。具体例、説明、限定、背景など、内容面の情報が失われる場合は補足（ILC）とする。言い換え、繰り返し、言いよどみなど、言い回しが変わるだけのものは補足に含めない。
 
@@ -145,7 +147,7 @@
 | `unrelated_content` | なし |
 | `invalid_nu` | なし |
 
-すべての NU に共通して、必要に応じて `note`（補足説明や文字起こしの修正内容）を記入できる。
+すべての NU に共通して、必要に応じて `note`（メモや文字起こしの修正内容）を記入できる。
 
 <a id="sec-3-2"></a>
 
@@ -166,32 +168,39 @@
 - すでに説明した内容を、要点としてまとめ直している発話は、`metadiscourse` の `organization_management`（細分類：要約）とする。
 - 参考資料（動画、URL、教科書のページなど）がスライドに記載されていても、その資料を見るよう案内する発話は、話題に関する知識を伝えていないため、`metadiscourse` の `audience_interaction`（細分類：注目の誘導）とする。
 
-**文字要素と視覚的要素の区別**
+**`on_slide_textual_content` と `on_slide_visual_content` の区別**
 
-スライドの要素を文字要素と視覚的要素に分け、NU が主に説明している要素に応じてラベルを選ぶ。
+2つのラベルは、**NU の内容を理解するのに、視覚的な理解が必要かどうか**で区別する。
 
-| 要素 | 含まれるもの | 主ラベル |
-|---|---|---|
-| 文字要素 | タイトル、箇条書き、文章 | `on_slide_textual_content` |
-| 視覚的要素 | 図、フローチャート、グラフ、数式、画像、矢印と組み合わせた語句など、視覚的に構成された要素。**その中に含まれる文字も視覚的要素として扱う。** | `on_slide_visual_content` |
+- スライド上の文字を読めば理解できる場合（文字を書き起こすだけで足りる場合）は、`on_slide_textual_content` とする。
+- 図の構造や画像の内容を見て理解する必要がある場合は、`on_slide_visual_content` とする。
 
-- 表は、文字と数値のみで構成されている場合は文字要素、それ以外は視覚的要素として扱う（暫定。パイロットの結果を踏まえて見直す）。
-- 1つの NU が両方の要素に触れている場合は、NU が主に説明している要素に応じて選ぶ。
+スライドの要素ごとの扱いの目安を、次に示す。
 
-**`on_slide_visual_content` の判断**
+| 要素 | 扱い |
+|---|---|
+| タイトル、箇条書き、文章、数式（手書きを含む） | `on_slide_textual_content` |
+| 表 | 標準的な、文字と数値で構成される表については `on_slide_textual_content` として扱う。ただし、画像の理解が必要な表があった場合は、`on_slide_visual_content` として扱う。 |
+| 図、フローチャート、グラフ、画像など | 伝えている情報の中心が文字で、文字を読めば理解できる場合は `on_slide_textual_content`、図の構造や画像の理解が必要な場合は `on_slide_visual_content` |
 
-`on_slide_visual_content` は、視覚的要素の**表層的な情報から直接読み取れる内容**に限って選ぶ。アノテーターの推測によって結びつける関係は対象外とする。次の2点をいずれも満たす場合に選ぶ。
+1つの NU が複数の要素に触れている場合は、NU が主に説明している要素に応じて選ぶ。
 
-1. NU が述べている内容が、視覚的要素の中に目に見える形で示されている。
-2. 講師が視覚的要素を指して説明している（"as you can see"、"here" などの指示表現がある、または NU の内容が図表の要素と一つずつ対応している）。
+スライド中の画像について、同じ NU でも文字の有無によって判断が変わる例は、[4.1 の u05](#ex-4-1-u05)（「参考」を含む）を参照。
 
-動画の画面キャプチャなど、イメージを伝えるために置かれ、講義の説明には使われていない画像は、説明の対象とはみなさない。そのような画像に関連する発話は、発話の内容に応じて他のラベルを検討する。
+**`on_slide_visual_content` と `implicit_lecture_content` の判断**
+
+スライド中の画像に関連する NU は、原則として次のように判断する。
+
+- 画像から NU の内容がほぼカバーされている場合は、`on_slide_visual_content` とする。
+- 画像で表現されていない内容を含むと判断した場合は、`implicit_lecture_content` とする。画像の説明に当たる部分がある場合は、`remainder_label` を `on_slide_visual_content` とする（[4.2 の u02](#ex-4-2-u02) 参照）。
+
+判断が難しい例においては、アノテーターの解釈の余地がある。
 
 <a id="sec-3-2-2"></a>
 
 #### 3.2.2 `implicit_lecture_content` — スライドに明示されない講義内容
 
-現在のスライドには直接示されていないが、**そのスライド上の話題の理解に役立つ情報を補足している**場合に選ぶ。NU の一部だけが補足である場合も、このラベルを選ぶ（[3.1](#sec-3-1)）。
+現在のスライドには直接示されていないが、**そのスライド上の話題の理解に役立つ情報を補足している**場合に選ぶ。NU の一部だけが補足である場合も、このラベルを選ぶ（[3.1](#sec-3-1)）。具体例は、[4.1 の u03](#ex-4-1-u03)、[4.1 の u07](#ex-4-1-u07)、[4.2 の u02](#ex-4-2-u02) を参照。
 
 **追加入力：**
 
@@ -200,7 +209,7 @@
    - 該当部分が複数箇所に分かれている場合は、それらをすべて含む最短の連続した範囲をコピーする。
    - NU 全体がスライドに書かれていない内容であれば、NU 全体をコピーする。
 2. `sublabel`：補足内容が果たしている役割に最も近い ILC分類を1つ。5つの分類のいずれにも当てはまらない場合は `other` を選び、必要と考えた分類とその理由を `note` に簡潔に記入する。
-3. `remainder_label`：NU のうち `not_on_slide_span` 以外の部分に当てはまる主ラベル（`on_slide_textual_content` または `on_slide_visual_content`）。NU 全体が補足である場合は空欄（`""`）とする。
+3. `remainder_label`：NU のうち `not_on_slide_span` 以外の部分に当てはまる主ラベル（`on_slide_textual_content`、`on_slide_visual_content`、`metadiscourse`、`unrelated_content` のいずれか）。NU 全体が補足である場合は空欄（`""`）とする。
 
 ##### ILC分類一覧
 
@@ -315,9 +324,11 @@
 
 #### 3.2.5 `invalid_nu` — 解釈不能な NU
 
-発話が途中で途切れている、明らかな言い間違いや文字起こしの誤りによって意味が通らないなど、文脈を確認しても NU 自体が何を述べているか理解できない場合に選ぶ。文脈の確認は、`invalid_nu` を解消することを目的として、狭い範囲から順に行う。まず同じスライドのナレーションと NU を確認し、それで解消できない場合は前後のスライドとその NU、さらに解消できない場合は元の講義動画の音声を確認する。指示語の指示対象は文脈から補い、指示語があるというだけではこのラベルを選ばない。
+文脈を確認しても NU 自体が何を述べているか理解できない場合に選ぶ（例：発話が途中で途切れている）。指示語の指示対象は文脈から補い、指示語があるというだけではこのラベルを選ばない。
 
-文字起こしの誤りを修正した結果、内容を理解できるようになった場合は、修正後の内容に基づいて主ラベルを選ぶ（[3.4](#sec-3-4)）。
+※ 文字起こしの誤りがある場合は、誤りを修正したうえで通常どおりラベルを付ける（[3.4](#sec-3-4)）。
+
+文脈の確認は、`invalid_nu` をできるだけなくすことを目的として、狭い範囲から順に行う。まず同じスライドのナレーションと NU を確認し、それで理解できない場合は前後のスライドとその NU、さらに理解できない場合は元の講義動画の音声を確認する。
 
 **追加入力：**なし。
 
@@ -329,7 +340,7 @@
 
 画像の一部が不鮮明な場合は、ナレーションの内容から、その箇所が講師の説明の対象かどうかを推測して判断する。
 
-- 不鮮明な箇所が説明の対象でないと推測される場合（例：参考として小さく載せられ、講義で触れられていない図）は、確証がなくても、アノテーターの推測で通常どおりラベルを付けてよい。`note` への記入は不要である。
+- 不鮮明な箇所が説明の対象でないと推測される場合（例：講義で触れられていない図）は、確証がなくても、アノテーターの推測で通常どおりラベルを付けてよい。`note` への記入は不要である。
 - 主な説明対象である図表や画像などが不鮮明で判断できない場合のみ、`label` を空欄とし、該当箇所と理由を `note` に記入する。
 
 <a id="sec-3-4"></a>
@@ -338,46 +349,489 @@
 
 ナレーションと NU は自動の文字起こしに基づいているため、誤りが含まれることがある。
 
-- 誤りに気づいた場合は、元の講義動画（`video_url`）を確認し、修正内容を `note` に記入してよい。動画の確認は必須ではない。
+- 誤りに気づいた場合は、元の講義動画（`video_url`）を確認し、修正内容を `note` に記入してよい。
 - 修正内容は、`note` に次の形式で記入する。
   - 形式：`{{FIX: 誤った表記 => 正しい表記}}`
   - 誤った表記は、NU の `text` からそのままコピーする（大文字・小文字や記号も変えない）。
   - 1つの NU に複数ある場合は、`{{FIX: … => …}}` を並べて記入する。
   - ほかのメモは、`{{ }}` の外に自由に記入できる。
   - 例：`{{FIX: you've => think of}}`
-- 誤りを修正した場合は、修正後の内容に基づいてラベルを判断する。
+- 誤りを修正した場合は、修正後の内容に基づいてラベルを判断する。文字起こしの誤りがあるというだけでは、`invalid_nu` としない。
 
 <a id="sec-4"></a>
 
 ## 4. 作業例
 
-`lectures/example.json` のスライド（`slide_index: 11`）と、`results/example.json` のアノテーション結果を示す。
+本章では、作業例を示す。各例では、左上にスライド画像、右上にナレーション原文（NU ごとに区切ったもの。判定する NU を太字で示す）を示し、その下に判定する NU、記入内容、判断の理由を示す。サブラベルを記入する例では、判断の際に参考にした細分類も理由の中に示す（細分類は記入しない）。
 
-**スライド画像**
+<a id="sec-4-1"></a>
 
-![糖尿病の種類を示す作業例のスライド](example_images/example/slide_0011.jpg)
+### 4.1 糖尿病のスライド
 
-**ナレーション原文（全文）**
+`lectures/example.json` のスライド（`slide_index: 11`）の NU 9件を示す。
 
-> when it comes to diabetes most of us know there are two types type 1 type 2 the way i always remember type 2 is that you're too fat and it's more than just simply being too fat but that's what we tend to talk about and as you can see in the chart there's a lot more type 2 diabetes than there is type 1 now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy but for most of us we tend to you've only type 1 and type 2 those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes but for us for this class type 1 type 2 and remember type 2 is because you're too fat as i always like to do give you a little hints to help you remember things
+<a id="ex-4-1-u01"></a>
 
-**NU とアノテーション結果（全9件）**
+#### 4.1 の u01
 
-| NU ID | NU（全文） | `label` | 追加入力 |
-|---|---|---|---|
-| `example_s011_u01` | When it comes to diabetes, most of us know there are two types: type 1, type 2. | `on_slide_textual_content` | なし |
-| `example_s011_u02` | The way I always remember type 2 is that you're too fat. | `on_slide_textual_content` | なし |
-| `example_s011_u03` | And it's more than just simply being too fat, but that's what we tend to talk about. | `implicit_lecture_content` | `sublabel`: `concept_clarification`<br>`not_on_slide_span`: `more than just simply being too fat`<br>`remainder_label`: `on_slide_textual_content` |
-| `example_s011_u04` | As you can see in the chart, there's a lot more type 2 diabetes than there is type 1. | `on_slide_visual_content` | なし |
-| `example_s011_u05` | Now, there is a third type of diabetes, which is basically women who are pregnant who get elevated glucose levels during pregnancy. | `on_slide_visual_content` | なし |
-| `example_s011_u06` | But for most of us, we tend to you've only type 1 and type 2. | `metadiscourse` | `sublabel`: `audience_interaction`<br>`note`: `{{FIX: you've => think of}}` |
-| `example_s011_u07` | Those of you who are going into the allied health fields, you'll might even discuss up to five different types of diabetes. | `implicit_lecture_content` | `sublabel`: `contextual_knowledge`<br>`not_on_slide_span`: `Those of you who are going into the allied health fields, you'll might even discuss up to five different types of diabetes.`<br>`remainder_label`: `""` |
-| `example_s011_u08` | But for us, for this class, type 1, type 2, and remember type 2 is because you're too fat. | `metadiscourse` | `sublabel`: `organization_management` |
-| `example_s011_u09` | As I always like to do, give you a little hints to help you remember things. | `metadiscourse` | `sublabel`: `speaker_stance` |
+**この例で確認してほしい点：** スライドの文字要素を説明する NU
 
-- `example_s011_u03`：スライドには「Too Fat」と書かれているが、「単に太りすぎというだけではない」という点は書かれていないため、その部分を抜き出している。残りの部分はスライドの文字要素の説明に当たるため、`remainder_label` を `on_slide_textual_content` としている。
-- `example_s011_u05`：妊娠糖尿病（Gestational）は、スライド右側の画像（視覚的要素）の中にのみ示されているため、`on_slide_visual_content` としている。
-- `example_s011_u06`：`you've` は文字起こしの誤りで、元の動画では "think of" と発話されているため、`note` に修正内容を記入している。「私たちの多くは、糖尿病といえば1型と2型だけを思い浮かべがちだ」という、聞き手と共有している一般的な認識に言及した発話であるため、`audience_interaction`（細分類：共有知識への言及）としている。
-- `example_s011_u07`：スライドには3種類の糖尿病しか示されておらず、「医療系の分野では最大5種類を扱う」という点は書かれていない。NU 全体がスライドに書かれていない内容であるため、NU 全体を抜き出し、`remainder_label` は空欄としている。
-- `example_s011_u08`：u01〜u05 でスライドの内容は一通り説明済みであり、u08 はそれを「この授業で押さえる点」としてまとめ直している。そのため、`organization_management`（細分類：要約）としている。
-- `example_s011_u09`：直前の "too fat" という覚え方を受けて、講師が自分の教え方を述べている発話であるため、`speaker_stance`（細分類：話者自身の立場）としている。
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+<b>u01：when it comes to diabetes most of us know there are two types type 1 type 2</b><br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u01`
+
+> When it comes to diabetes, most of us know there are two types: type 1, type 2.
+
+**記入内容：**
+
+```json
+"example_s011_u01": {
+  "label": "on_slide_textual_content"
+}
+```
+
+**判断の理由：**
+
+- この NU は「糖尿病には1型と2型の2つのタイプがある」と述べている。
+- スライドの箇条書き（Type 1 Diabetes、Type 2 Diabetes）に示された内容を、このスライドで初めて説明している。冒頭の "most of us know" は話の導入にすぎず、発話の主旨は2つのタイプの説明にある（[3.2.1](#sec-3-2-1)）。
+- 箇条書きの文字を読めば理解できる内容であるため、`on_slide_textual_content` とする。
+
+<a id="ex-4-1-u02"></a>
+
+#### 4.1 の u02
+
+**この例で確認してほしい点：** スライドの文字要素を説明する NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+<b>u02：the way i always remember type 2 is that you're too fat</b><br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u02`
+
+> The way I always remember type 2 is that you're too fat.
+
+**記入内容：**
+
+```json
+"example_s011_u02": {
+  "label": "on_slide_textual_content"
+}
+```
+
+**判断の理由：**
+
+- この NU は「2型は『太りすぎ』と覚えている」と述べている。
+- スライドの箇条書きにある「Type 2 Diabetes (Too Fat)」の「(Too Fat)」が何を表しているかを、ここで初めて説明している。"The way I always remember" という講師自身の覚え方の形をとっているが、伝えている内容はスライドに書かれた「Too Fat」そのものである。
+- 箇条書きの文字を読めば理解できる内容であるため、`on_slide_textual_content` とする。
+
+<a id="ex-4-1-u03"></a>
+
+#### 4.1 の u03
+
+**この例で確認してほしい点：** ILC とメタ談話が混在する NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+<b>u03：and it's more than just simply being too fat but that's what we tend to talk about and</b><br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u03`
+
+> And it's more than just simply being too fat, but that's what we tend to talk about.
+
+**記入内容：**
+
+```json
+"example_s011_u03": {
+  "label": "implicit_lecture_content",
+  "sublabel": "concept_clarification",
+  "not_on_slide_span": "more than just simply being too fat",
+  "remainder_label": "metadiscourse"
+}
+```
+
+**判断の理由：**
+
+- この NU は「（2型糖尿病は）単に太りすぎというだけではないが、私たちは普段そう言っている」と述べている。
+- スライドには「Too Fat」とだけ書かれており、「単に太りすぎというだけではない」という点は書かれていない。この部分を削除すると、聞き手は「2型は太りすぎだけが原因ではない」という内容を受け取れなくなるため、補足（ILC）とする（[3.1](#sec-3-1)）。
+- `not_on_slide_span`：[3.2.2](#sec-3-2-2) に従い、補足に当たる部分を句の単位で抜き出している。前の "And it's" は補足の意味に関わらないため含めていない（含めても構わない）。
+- `sublabel`：「Too Fat」という覚え方から生じやすい「2型糖尿病は太りすぎだけが原因である」という誤解を正しているため、`concept_clarification`（細分類：誤解の訂正）とする。
+- `remainder_label`：残りの部分の中心である "but that's what we tend to talk about" は、「太りすぎというのは、私たちが普段そう言っているだけだ」と、講師が自分たちの言い方について述べている部分である。スライドの内容を新たに説明しておらず、新しい知識も伝えていないため、`metadiscourse` とする。
+
+<a id="ex-4-1-u04"></a>
+
+#### 4.1 の u04
+
+**この例で確認してほしい点：** 視覚的な理解が必要な図を説明する NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+<b>u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1</b><br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u04`
+
+> As you can see in the chart, there's a lot more type 2 diabetes than there is type 1.
+
+**記入内容：**
+
+```json
+"example_s011_u04": {
+  "label": "on_slide_visual_content"
+}
+```
+
+**判断の理由：**
+
+- この NU は「グラフから分かるとおり、2型糖尿病は1型よりずっと多い」と述べている。
+- "As you can see in the chart" という指示表現があり、講師はスライド左下のグラフを指して説明している。
+- グラフには「90%」「10%」「TYPE2」「TYPE1」などの文字も含まれているが、このグラフは人の形の数と帯の長さで2つのタイプの割合を示しており、「2型の方がずっと多い」という情報の中心は図の構成にある。理解にグラフの視覚的な理解が必要なため、`on_slide_visual_content` とする（[3.2.1](#sec-3-2-1)）。
+
+<a id="ex-4-1-u05"></a>
+
+#### 4.1 の u05
+
+**この例で確認してほしい点：** 画像と文字を含む図を説明する NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+<b>u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy</b><br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u05`
+
+> Now, there is a third type of diabetes, which is basically women who are pregnant who get elevated glucose levels during pregnancy.
+
+**記入内容：**
+
+```json
+"example_s011_u05": {
+  "label": "on_slide_textual_content"
+}
+```
+
+**判断の理由：**
+
+- この NU は「糖尿病には3つ目のタイプがあり、妊娠中に血糖値が上がる妊婦のことである」と述べている。
+- 左側の箇条書きには1型と2型しか書かれておらず、3つ目のタイプはスライド右側の図にのみ示されている。
+- 右側の図には妊婦の画像も含まれているが、3つ目のタイプについては「Gestational」「Elevated Blood Glucose Levels during Pregnancy」と文字で示されている。NU の内容は、これらの文字を読めば理解でき、画像を見て理解する必要はない。そのため、`on_slide_textual_content` とする（[3.2.1](#sec-3-2-1)）。
+- 参考として、右側の図に文字がない場合の扱いを下に示す。
+
+**参考：右側の図に「Gestational」などの文字がない場合**
+
+`on_slide_textual_content` と `on_slide_visual_content` の違いを説明するため、元のスライドを加工し、右側の図の下部から「Gestational」と「Elevated Blood Glucose Levels during Pregnancy」の文字を消して、妊婦の図だけを残したものを示す（実際のスライドではない）。
+
+<img src="example_images/example/slide_0011_gestational_no_text.jpg" alt="右側の図の下部の文字を消した糖尿病のスライド" width="50%">
+
+このスライドの場合、u05 の記入内容は次のようになる。
+
+```json
+"example_s011_u05": {
+  "label": "implicit_lecture_content",
+  "sublabel": "concept_clarification",
+  "not_on_slide_span": "who get elevated glucose levels during pregnancy.",
+  "remainder_label": "on_slide_visual_content"
+}
+```
+
+- 「3つ目のタイプがあり、妊婦に関わるものである」という前半の内容は、文字では示されておらず、妊婦の図を見て理解する必要がある。そのため、この部分は `on_slide_visual_content` に当たり、`remainder_label` を `on_slide_visual_content` とする。
+- 一方、「妊娠中に血糖値が上がる」という点は、図には描かれていない。画像で表現されていない内容を含むため、主ラベルを `implicit_lecture_content` とする（[3.2.1](#sec-3-2-1)）。
+- `not_on_slide_span`：[3.2.2](#sec-3-2-2) に従い、補足に当たる節（"who get elevated glucose levels during pregnancy"）を、文末のピリオドを含めて抜き出す。
+- `sublabel`：図だけでは分からない、3つ目のタイプがどのような状態かを説明しているため、`concept_clarification`（細分類：特徴・性質）とする。
+- このように、同じ NU でも、スライドに文字で示されているか、画像だけで示されているかによって、ラベルの判断が変わる。
+
+<a id="ex-4-1-u06"></a>
+
+#### 4.1 の u06
+
+**この例で確認してほしい点：** 文字起こしの誤りがある NU、メタ談話
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+<b>u06：but for most of us we tend to you've only type 1 and type 2</b><br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u06`
+
+> But for most of us, we tend to you've only type 1 and type 2.
+
+**記入内容：**
+
+```json
+"example_s011_u06": {
+  "label": "metadiscourse",
+  "sublabel": "audience_interaction",
+  "note": "{{FIX: you've => think of}}"
+}
+```
+
+**判断の理由：**
+
+- `you've` は文字起こしの誤りで、元の講義動画では "think of" と発話されている。修正内容を [3.4](#sec-3-4) の形式で `note` に記入し、修正後の文でラベルを判断する。
+- 修正後の文は「私たちの多くは、糖尿病といえば1型と2型だけを思い浮かべがちだ」という意味である。1型と2型はスライドに書かれているが、u01 ですでに説明済みであり、この発話はそれらを新たに説明していない。また、聞き手に新しい知識も伝えていないため、`on_slide_textual_content` や `implicit_lecture_content` には当たらない。
+- 直後の u07（医療系の分野では最大5種類を扱う）と対比させるために、講師と聞き手が共有している一般的な認識に触れている発話であるため、`metadiscourse` の `audience_interaction`（細分類：共有知識への言及）とする。
+
+<a id="ex-4-1-u07"></a>
+
+#### 4.1 の u07
+
+**この例で確認してほしい点：** NU 全体が補足である NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+<b>u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes</b><br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u07`
+
+> Those of you who are going into the allied health fields, you'll might even discuss up to five different types of diabetes.
+
+**記入内容：**
+
+```json
+"example_s011_u07": {
+  "label": "implicit_lecture_content",
+  "sublabel": "contextual_knowledge",
+  "not_on_slide_span": "Those of you who are going into the allied health fields, you'll might even discuss up to five different types of diabetes.",
+  "remainder_label": ""
+}
+```
+
+**判断の理由：**
+
+- この NU は「医療系の分野に進む人は、最大5種類の糖尿病を扱うかもしれない」と述べている。
+- スライドには3種類の糖尿病しか示されておらず、「医療系の分野では最大5種類を扱う」という点は書かれていない。削除すると内容が失われるため、補足（ILC）とする。
+- `not_on_slide_span`：NU 全体がスライドに書かれていない内容であるため、[3.2.2](#sec-3-2-2) に従い NU 全体をコピーしている。文末のピリオドも含め、"you'll might" のような文法上の誤りもそのままにしている。
+- `sublabel`：この授業で扱う糖尿病の種類を、医療系の分野という講義の外の文脈の中に位置付けているため、`contextual_knowledge`（細分類：背景）とする。
+- `remainder_label`：NU 全体が補足であるため、空欄とする。
+
+<a id="ex-4-1-u08"></a>
+
+#### 4.1 の u08
+
+**この例で確認してほしい点：** 説明済みの内容をまとめ直す NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+<b>u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat</b><br>
+u09：as i always like to do give you a little hints to help you remember things
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u08`
+
+> But for us, for this class, type 1, type 2, and remember type 2 is because you're too fat.
+
+**記入内容：**
+
+```json
+"example_s011_u08": {
+  "label": "metadiscourse",
+  "sublabel": "organization_management"
+}
+```
+
+**判断の理由：**
+
+- この NU は「この授業では1型と2型、そして2型は太りすぎが原因だと覚えておいてほしい」と述べている。
+- 1型、2型、「Too Fat」はいずれもスライドに書かれているが、u01〜u05 でスライドの内容は一通り説明済みである。この NU は内容を新たに説明しているのではなく、"for us, for this class" と範囲を示したうえで、説明済みの内容を「この授業で押さえる点」としてまとめ直している（[3.2.1](#sec-3-2-1)）。
+- そのため、`metadiscourse` の `organization_management`（細分類：要約）とする。
+
+<a id="ex-4-1-u09"></a>
+
+#### 4.1 の u09
+
+**この例で確認してほしい点：** 講師の教え方について述べる NU
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/example/slide_0011.jpg" alt="糖尿病の種類を示すスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：when it comes to diabetes most of us know there are two types type 1 type 2<br>
+u02：the way i always remember type 2 is that you're too fat<br>
+u03：and it's more than just simply being too fat but that's what we tend to talk about and<br>
+u04：as you can see in the chart there's a lot more type 2 diabetes than there is type 1<br>
+u05：now there is a third type of diabetes which is basically women who are pregnant who get elevated glucose levels during pregnancy<br>
+u06：but for most of us we tend to you've only type 1 and type 2<br>
+u07：those of you who are going into the allied health fields you'll might even discuss up to five different types of diabetes<br>
+u08：but for us for this class type 1 type 2 and remember type 2 is because you're too fat<br>
+<b>u09：as i always like to do give you a little hints to help you remember things</b>
+</td>
+</tr>
+</table>
+
+**判定する NU：** `example_s011_u09`
+
+> As I always like to do, give you a little hints to help you remember things.
+
+**記入内容：**
+
+```json
+"example_s011_u09": {
+  "label": "metadiscourse",
+  "sublabel": "speaker_stance"
+}
+```
+
+**判断の理由：**
+
+- この NU は「いつもそうしているように、覚えやすいようにちょっとしたヒントを出している」と述べている。
+- このスライドの最後の NU であり、後に新しい説明は続かないため、話題の導入には当たらない。直前の "too fat" という覚え方を受けて、講師が自分の教え方について述べている発話であり、聞き手に新しい知識は伝えていない。
+- そのため、`metadiscourse` の `speaker_stance`（細分類：話者自身の立場）とする。
+
+<a id="sec-4-2"></a>
+
+### 4.2 図の説明と補足が混在する NU
+
+`lectures/LectureSeriesForIntrotoPsy-PSY101_1.json` のスライド（`slide_index: 6`）のうち、1件の NU を示す。
+
+<a id="ex-4-2-u02"></a>
+
+#### 4.2 の u02
+
+**この例で確認してほしい点：** 図の説明に、図に示されていない補足が加わっている場合の扱い
+
+<table width="100%">
+<tr>
+<td width="50%" valign="top"><img src="example_images/LectureSeriesForIntrotoPsy-PSY101_1/slide_0006.jpg" alt="パブロフの実験を図で示したスライド" width="100%"></td>
+<td width="50%" valign="top"><b>ナレーション原文</b>（NU ごとに区切り、判定する NU を太字で示す）<br><br>
+u01：so this is pavan is experiment and right here you see this same chart that's in your book and we're basically going to do the same chart here but i like using pictures i find it for me a little bit more understandable<br>
+<b>u02：so the first thing we're going to do is we're going to have this little bell and we're going to be ringing the bell and the dog will respond but it doesn't drool it doesn't make saliva it made twist his head it may bark but basically this neutral stimulus will lead to nothing nothing meanings it doesn't give us the response we're looking for</b><br>
+u03：so now what we want to do is find this unconditioned stimulus to get this unconditioned response so we give this dog meat the dog is going to begin to drool to salivate we know that the dog doesn't have to learn that we don't have to learn that you put some good food in my mouth and i began to salivate to help the digestion process<br>
+u04：well this is the first step we have to prove that this bell right now does not get the desired response our hope is that in the end will going to be able to ring the bell over here and that will get cool<br>
+u05：so how do we do that well we need to build a relationship up between the bell and the food so basically we're going to present them food and ring the bell exactly at the same time and this relationship then is being built between these two things this is called the acquisition phase so we're acquiring the conditioning<br>
+u06：because the food will naturally lead to drooling but in the brain of the dog within the audit tomic nervous system the food in the bell are coming the same thing the bell represents food and food represents the bell<br>
+u07：if we've done well in the end i ring the bell and i get drool well this neutral stimulus has changed to a conditioned stimulus hasn't it because now i get a conditioned response<br>
+u08：and that's one of the neat things about this is that a neutral stimulus will lead to nothing an unconditioned stimulus should always lead to an unconditioned response and the conditioned stimulus should always lead to a conditioned response<br>
+u09：well this pattern is a preset pattern we don't have much choice with this if we're talking about classical shooting this is the pattern so we can put anything that's been classically conditioned put it into this pattern and we should see it works the same way<br>
+u10：so let's talk about a five year old boy johnny johnny is in his backyard he sees a little garden snake now johnny's not afraid of the garden snake he goes up he's going to go touch it or look at it or do something with it he doesn't know so right now the snake is a neutral stimulus because he does not produce fear when he sees the snake<br>
+u11：however as he goes to book a at the snake an 18-wheeler blows its horn now if you have an 18 wheeler blows a horn right behind you you're probably going to jump or have fear so the horn produces fear<br>
+u12：now what happened unfortunately is that he's looking at the snake at the same time the horn is sounded so he begins to associate fear which was the response to the horn with the snake<br>
+u13：and now when johnny goes in the backyard he sees snake he begins to back up a little bit his heart races a little bit always a little fear of the snake<br>
+u14：now in the beginning he had no fear of the snake remember he was all over going to go play with it and touch it now he has a fear of the snake so that neutral stimulus has become the conditioned stimulus it had a change<br>
+u15：now this can happen in many different ways we'll talk about some of the fun things in class where we have seen some pavlovian classically conditioned things to yourself
+</td>
+</tr>
+</table>
+
+**判定する NU：** `LectureSeriesForIntrotoPsy-PSY101/1_s006_u02`
+
+> So the first thing we're going to do is we're going to have this little bell, and we're going to be ringing the bell, and the dog will respond, but it doesn't drool, it doesn't make saliva; it may twist his head, it may bark, but basically this neutral stimulus will lead to nothing. Nothing means it doesn't give us the response we're looking for.
+
+**記入内容：**
+
+```json
+"LectureSeriesForIntrotoPsy-PSY101/1_s006_u02": {
+  "label": "implicit_lecture_content",
+  "sublabel": "concept_clarification",
+  "not_on_slide_span": "it may twist his head, it may bark, but basically this neutral stimulus will lead to nothing. Nothing means it doesn't give us the response we're looking for.",
+  "remainder_label": "on_slide_visual_content"
+}
+```
+
+**判断の理由：**
+
+- この NU は「ベルを鳴らすと犬は反応するが、よだれは垂らさない。首をかしげたり吠えたりするかもしれないが、この中性刺激は『何も起こさない（Nothing）』。『Nothing』とは、求めている反応が得られないという意味である」と述べている。
+- 前半（"So the first thing ... it doesn't make saliva;"）は、スライド左上の図の説明である。この図では、ベルから矢印で、禁止マークの付いた犬の画像につながっており、その下に「NS → Nothing」と書かれている。ベルを鳴らしても犬がよだれを垂らさないことは、矢印と禁止マークの付いた画像から読み取るもので、理解には図の視覚的な理解が必要である。
+- 後半の「首をかしげたり吠えたりするかもしれない」「『Nothing』は求めている反応が得られないという意味である」は、図には示されていない。図には「Nothing」とだけ書かれており、講師は、反応そのものはありうること、ただし目的とする反応（よだれ）ではないことを補っている。この部分を削除すると内容が失われるため、補足（ILC）とし、主ラベルを `implicit_lecture_content` とする（[3.1](#sec-3-1)）。
+- `not_on_slide_span`：[3.2.2](#sec-3-2-2) に従い、補足を節・文の単位で抜き出している。補足は "it may twist his head, it may bark" と "Nothing means ..." の2か所に分かれているため、間にある "but basically this neutral stimulus will lead to nothing." も含めた最短の連続した範囲をコピーしている。文末のピリオドも含めている。
+- `sublabel`：図中の「Nothing」という語が何を意味するかを説明しているため、`concept_clarification`（細分類：定義・用語説明）とする。
+- `remainder_label`：残りの前半部分は図の説明であるため、`on_slide_visual_content` とする。

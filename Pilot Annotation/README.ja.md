@@ -11,7 +11,7 @@
 | 心理学入門（PSY101/1） | 5–6 | 3、4、7 | 5 | 53 |
 | 学術的文章作成（/23） | 3–5 | 6–12 | 10 | 83 |
 
-
+`slide_index` は元の講義の値をそのまま使用しています。心理学入門の講義では0から始まります。予備のスライドは、必要に応じて追加で作業していただく分です。
 
 ## データ統計
 
@@ -93,22 +93,23 @@
 
 ### アノテーション結果（`results/<name>.json`）
 
-`annotations` のキーは `unit_id` です。各項目には主ラベルを `label` に記入し、必要に応じて `sublabel`、`not_on_slide_span`、`note` を追加します。判断を保留する NU は `label` を空欄（`""`）にし、`note` に理由を記入します。パイロット対象の講義2本分の結果ファイルは `annotations` が空の状態で配布しており、`results/example.json` には記入済みの結果が入っています。以下は上の入力例と同じ4件の結果です。
+`annotations` のキーは `unit_id` です。各項目には主ラベルを `label` に記入し、必要に応じて `sublabel`、`not_on_slide_span`、`remainder_label`、`note` を追加します。文字起こしの修正内容は、`note` に `{{FIX: 誤った表記 => 正しい表記}}` の形式で記入します。判断の前提に問題がある場合は、`label` を空欄（`""`）にし、該当箇所と理由を `note` に記入します。パイロット対象の講義2本分の結果ファイルは `annotations` が空の状態で配布しており、`results/example.json` には記入済みの結果が入っています。以下は上の入力例と同じ4件の結果です。
 
 ```json
 {
   "lecture_id": "example",
   "annotations": {
     "example_s011_u02": {
-      "label": "on_slide_content"
+      "label": "on_slide_textual_content"
     },
     "example_s011_u03": {
       "label": "implicit_lecture_content",
       "sublabel": "concept_clarification",
-      "not_on_slide_span": "more than just simply being too fat"
+      "not_on_slide_span": "more than just simply being too fat",
+      "remainder_label": "metadiscourse"
     },
     "example_s011_u04": {
-      "label": "figure_formula_explanation"
+      "label": "on_slide_visual_content"
     },
     "example_s011_u08": {
       "label": "metadiscourse",

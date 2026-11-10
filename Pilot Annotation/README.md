@@ -29,7 +29,7 @@ These figures are recalculated from the two pilot lecture files; the completed `
 |---|---|
 | `lectures/<name>.json` | One input file per lecture, plus `example.json` |
 | `slide_images/<name>/` | Slide images grouped by lecture |
-| `manual/` | Annotation manuals and the example image |
+| `manual/` | Annotation manuals and example images |
 | `results/<name>.json` | One annotation file per input file; `example.json` is filled in |
 
 ## Data structure
@@ -93,22 +93,23 @@ The following excerpt of `lectures/example.json` shows the complete narration fo
 
 ### Annotation result (`results/<name>.json`)
 
-`annotations` is keyed by `unit_id`. Each annotation has a primary `label`; `sublabel`, `not_on_slide_span`, and `note` are added when applicable. For an NU whose judgment is pending, leave `label` empty (`""`) and give the reason in `note`. The two pilot lecture result files start with empty `annotations`; `results/example.json` contains completed annotations. The excerpt below shows the results for the same four NUs shown above.
+`annotations` is keyed by `unit_id`. Each annotation has a primary `label`; `sublabel`, `not_on_slide_span`, `remainder_label`, and `note` are added when applicable. Transcription corrections are recorded in `note` in the format `{{FIX: incorrect text => correct text}}`. If the basis for a judgment is problematic, leave `label` empty (`""`) and describe the affected passage and the reason in `note`. The two pilot lecture result files start with empty `annotations`; `results/example.json` contains completed annotations. The excerpt below shows the results for the same four NUs shown above.
 
 ```json
 {
   "lecture_id": "example",
   "annotations": {
     "example_s011_u02": {
-      "label": "on_slide_content"
+      "label": "on_slide_textual_content"
     },
     "example_s011_u03": {
       "label": "implicit_lecture_content",
       "sublabel": "concept_clarification",
-      "not_on_slide_span": "more than just simply being too fat"
+      "not_on_slide_span": "more than just simply being too fat",
+      "remainder_label": "metadiscourse"
     },
     "example_s011_u04": {
-      "label": "figure_formula_explanation"
+      "label": "on_slide_visual_content"
     },
     "example_s011_u08": {
       "label": "metadiscourse",
